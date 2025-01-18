@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "49732244996",
+    "project_id": "public-assist-hub",
+    "storage_bucket": "public-assist-hub.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:49732244996:android:a4c27bb3a1eda86c0d8751",
+        "android_client_info": {
+          "package_name": "com.example.public_assist_hub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzy_96RjaTY553NXVBWHFarj3NJskb_dI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

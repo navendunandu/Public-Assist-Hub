@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:public_assist_hub/components/form_validation.dart';
+import 'package:public_assist_hub/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,15 +11,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
 
   bool _obscureText = true;
 
   final TextEditingController _emailEditingController = TextEditingController();
   final TextEditingController _passwordEditingController =
       TextEditingController();
-  Future<void> signIn() async {
-    
-  }
+  Future<void> signIn() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -59,127 +60,139 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 50),
                 // Form Fields
-                Column(
-                  children: [
-                    TextField(
-                      style: const TextStyle(color: Colors.white),
-                      controller: _emailEditingController,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.person,
-                          color: Color(0xFF33A4BB), // Default icon color
-                        ),
-                        hintText: 'Enter E-mail',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 72, 72, 72),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        validator: (value) =>
+                            FormValidation.validateEmail(value),
+                           controller: _emailEditingController,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(
+                            Icons.person,
+                            color: Color(0xFF33A4BB), // Default icon color
+                          ),
+                          hintText: 'Enter E-mail',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 72, 72, 72),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Color(0xFF33A4BB), // Color when focused
+                            ),
                           ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color(0xFF33A4BB), // Color when focused
-                          ),
-                        ),
+                        cursorColor: Color(0xFF33A4BB), // Cursor color
                       ),
-                      cursorColor: Color(0xFF33A4BB), // Cursor color
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      style: const TextStyle(color: Colors.white),
-                      controller: _passwordEditingController,
-                      obscureText: _obscureText,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.key,
-                          color: Color(0xFF33A4BB),
-                        ),
-                        hintText: 'Enter Password',
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-
-                            color: Color.fromARGB(255, 72, 72, 72),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        validator: (value) =>
+                            FormValidation.validatePassword(value),
+                        controller: _passwordEditingController,
+                        obscureText: _obscureText,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(
+                            Icons.key,
+                            color: Color(0xFF33A4BB),
                           ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color(0xFF33A4BB), // Color when focused
+                          hintText: 'Enter Password',
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 72, 72, 72),
+                            ),
                           ),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureText
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: Colors.white38,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Color(0xFF33A4BB), // Color when focused
+                            ),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
-                        ),
-                      ),
-                      cursorColor: Color(0xFF33A4BB),
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text("Forget Password?",style: TextStyle(color: Color(0xFF33A4BB)),),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureText
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.white38,
+                            ),
                             onPressed: () {
-                              signIn();
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
                             },
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Color(0xFF33A4BB),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12)),
-                            child: const Text(
-                              "Sign in",
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400),
-                            ),
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Flexible(
-                            child: Text("Don't have an account? ",
-                                style: TextStyle(color: Colors.black))),
-                        GestureDetector(
-                          onTap: () {
-                            
-                          },
-                          child: const Text(
-                            'Create a new account',
-                            style: TextStyle(
-                              color: Color(0xFF33A4BB),
+                        cursorColor: Color(0xFF33A4BB),
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Forget Password?",
+                            style: TextStyle(color: Color(0xFF33A4BB)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  signIn();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF33A4BB),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12)),
+                              child: const Text(
+                                "Sign in",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w400),
+                              ),
                             ),
                           ),
-                        )
-                      ],
-                    )
-                  ],
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Flexible(
+                              child: Text("Don't have an account? ",
+                                  style: TextStyle(color: Colors.black))),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RegistrationScreen(),
+                                  ));
+                            },
+                            child: const Text(
+                              'Create a new account',
+                              style: TextStyle(
+                                color: Color(0xFF33A4BB),
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),
