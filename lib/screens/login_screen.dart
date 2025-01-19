@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextFormField(
                         validator: (value) =>
                             FormValidation.validateEmail(value),
-                           controller: _emailEditingController,
+                        controller: _emailEditingController,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
                             Icons.person,
@@ -85,7 +85,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: Color(0xFF33A4BB), // Color when focused
                             ),
                           ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Colors.red, // Red border for errors
+                            ),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Colors
+                                  .red, // Red border when focused on error
+                            ),
+                            
+                          ),
+                          
                         ),
+                        keyboardType: TextInputType.emailAddress,
                         cursorColor: Color(0xFF33A4BB), // Cursor color
                       ),
                       const SizedBox(height: 20),
@@ -111,6 +127,19 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: Color(0xFF33A4BB), // Color when focused
                             ),
                           ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Colors.red, // Red border for errors
+                            ),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: const BorderSide(
+                              color: Colors
+                                  .red, // Red border when focused on error
+                            ),
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscureText
@@ -125,6 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                           ),
                         ),
+                        keyboardType: TextInputType.visiblePassword,
                         cursorColor: Color(0xFF33A4BB),
                       ),
                       const SizedBox(height: 15),
