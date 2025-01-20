@@ -6,12 +6,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:public_assist_hub/components/form_validation.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:public_assist_hub/components/loader_screen.dart';
 import 'package:public_assist_hub/main.dart';
 import 'package:cherry_toast/cherry_toast.dart';
+import 'package:public_assist_hub/screens/login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -26,13 +27,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool _obscureTextConfirm = true;
   XFile? _selectedImage;
   String? _imageUrl;
-  late ProgressDialog _progressDialog;
 
   @override
   void initState() {
     super.initState();
     fetchDistricts();
-    _progressDialog = ProgressDialog(context);
   }
 
   Future<void> _pickImage() async {
@@ -217,8 +216,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Future<void> register() async {
+    Loader.showLoader(context);
     try {
-      // _progressDialog.show();
       final credential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailEditingController.text,
@@ -226,9 +225,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       );
       if (credential.user!.uid.isNotEmpty) {
         await storeData(credential.user!.uid);
-        _progressDialog.hide();
       } else {
-        _progressDialog.hide();
+        Loader.hideLoader(context);
         print("Error User Authentication");
         CherryToast.error(
                 description: Text("Something went wrong! Please try again.",
@@ -239,7 +237,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             .show(context);
       }
     } on FirebaseAuthException catch (e) {
-      _progressDialog.hide();
+      Loader.hideLoader(context);
       if (e.code == 'weak-password') {
         CherryToast.error(
                 description: Text("The password provided is too weak",
@@ -260,7 +258,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         print('The account already exists for that email.');
       }
     } catch (e) {
-      _progressDialog.hide();
+      Loader.hideLoader(context);
       print(e);
       CherryToast.error(
               description: Text("Something went wrong! Please try again.",
@@ -291,6 +289,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           .onError((e, _) => print("Error writing document: $e"));
       if (_selectedImage != null) {
         await uploadImage(uid);
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoginScreen(),
+            ));
       } else {
         CherryToast.success(
                 title: Text("User Registration Successful",
@@ -298,7 +301,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             .show(context);
       }
     } catch (e) {
-      _progressDialog.hide();
       CherryToast.error(
               description: Text("Something went wrong! Please try again.",
                   style: TextStyle(color: Colors.black)),
@@ -320,13 +322,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           .collection('tbl_user')
           .doc(uid)
           .update({'user_photo': imageUrl});
-      _progressDialog.hide();
+
       CherryToast.success(
               title: Text("User Registration Successful",
                   style: TextStyle(color: Colors.black)))
           .show(context);
     } catch (e) {
-      _progressDialog.hide();
       CherryToast.error(
               description: Text("Something went wrong! Please try again.",
                   style: TextStyle(color: Colors.black)),
@@ -368,7 +369,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 50),
+                const SizedBox(height: 20),
                 // Form Fields
                 Form(
                   key: _formKey,
@@ -682,7 +683,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               _obscureText
                                   ? Icons.visibility_off
                                   : Icons.visibility,
-                              color: Colors.white38,
+                              color: const Color.fromARGB(255, 116, 116, 116),
                             ),
                             onPressed: () {
                               setState(() {
@@ -723,7 +724,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               _obscureTextConfirm
                                   ? Icons.visibility_off
                                   : Icons.visibility,
-                              color: Colors.white38,
+                              color: const Color.fromARGB(255, 116, 116, 116),
                             ),
                             onPressed: () {
                               setState(() {

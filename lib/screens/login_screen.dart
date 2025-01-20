@@ -1,6 +1,12 @@
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:public_assist_hub/components/form_validation.dart';
+import 'package:public_assist_hub/components/loader_screen.dart';
+import 'package:public_assist_hub/screens/homescreen.dart';
+import 'package:public_assist_hub/screens/reset_password.dart';
 import 'package:public_assist_hub/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,7 +24,48 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailEditingController = TextEditingController();
   final TextEditingController _passwordEditingController =
       TextEditingController();
-  Future<void> signIn() async {}
+  Future<void> signIn() async {
+    Loader.showLoader(context);
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailEditingController.text,
+          password: _passwordEditingController.text);
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(),
+          ));
+    } on FirebaseAuthException catch (e) {
+      Loader.hideLoader(context);
+      if (e.code == 'user-not-found') {
+        CherryToast.error(
+                description: Text("No user found for that email.",
+                    style: TextStyle(color: Colors.black)),
+                animationType: AnimationType.fromRight,
+                animationDuration: Duration(milliseconds: 1000),
+                autoDismiss: true)
+            .show(context);
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        CherryToast.error(
+                description: Text("Wrong password provided for that user.",
+                    style: TextStyle(color: Colors.black)),
+                animationType: AnimationType.fromRight,
+                animationDuration: Duration(milliseconds: 1000),
+                autoDismiss: true)
+            .show(context);
+        print('Wrong password provided for that user.');
+      } else {
+        CherryToast.error(
+                description: Text("Something went wrong! Please try again.",
+                    style: TextStyle(color: Colors.black)),
+                animationType: AnimationType.fromRight,
+                animationDuration: Duration(milliseconds: 1000),
+                autoDismiss: true)
+            .show(context);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,9 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: Colors
                                   .red, // Red border when focused on error
                             ),
-                            
                           ),
-                          
                         ),
                         keyboardType: TextInputType.emailAddress,
                         cursorColor: Color(0xFF33A4BB), // Cursor color
@@ -145,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _obscureText
                                   ? Icons.visibility_off
                                   : Icons.visibility,
-                              color: Colors.white38,
+                              color: const Color.fromARGB(255, 116, 116, 116),
                             ),
                             onPressed: () {
                               setState(() {
@@ -157,17 +202,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         keyboardType: TextInputType.visiblePassword,
                         cursorColor: Color(0xFF33A4BB),
                       ),
-                      const SizedBox(height: 15),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text(
-                            "Forget Password?",
-                            style: TextStyle(color: Color(0xFF33A4BB)),
+                          TextButton(
+                            child: Text(
+                              "Forget Password?",
+                              style: TextStyle(color: Color(0xFF33A4BB)),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ForgetPasswordScreen(),
+                                  ));
+                            },
                           ),
                         ],
                       ),
-                      const SizedBox(height: 15),
                       Row(
                         children: [
                           Expanded(
