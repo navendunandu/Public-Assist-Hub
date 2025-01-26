@@ -1,5 +1,6 @@
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,14 +28,36 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> signIn() async {
     Loader.showLoader(context);
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailEditingController.text,
-          password: _passwordEditingController.text);
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(),
-          ));
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: _emailEditingController.text,
+              password: _passwordEditingController.text);
+      String uid = userCredential.user!.uid;
+
+      // Check if the UID exists in the `tbl_user` collection
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('tbl_user')
+          .doc(uid)
+          .get();
+
+      if (userDoc.exists) {
+        // Navigate to home if document exists
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(),
+            ));
+      } else {
+        // Print invalid credentials if no document exists
+        CherryToast.error(
+                description: Text("No user found for that email.",
+                    style: TextStyle(color: Colors.black)),
+                animationType: AnimationType.fromRight,
+                animationDuration: Duration(milliseconds: 1000),
+                autoDismiss: true)
+            .show(context);
+        print('No user found for that email.');
+      }
     } on FirebaseAuthException catch (e) {
       Loader.hideLoader(context);
       if (e.code == 'user-not-found') {

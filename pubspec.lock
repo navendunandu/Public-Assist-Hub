@@ -425,7 +425,7 @@ packages:
     source: hosted
     version: "2.0.0"
   path:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: path
       sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
@@ -496,14 +496,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
-  progress_dialog_null_safe:
-    dependency: "direct main"
-    description:
-      name: progress_dialog_null_safe
-      sha256: f7d452ba9b17bb60f32ee74170e1a2c4367eeb1c428b1626dfe343c70412e4ce
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
