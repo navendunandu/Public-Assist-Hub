@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      userName!, // Show the user's name
+                      userName, // Show the user's name
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
