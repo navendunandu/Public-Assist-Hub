@@ -33,52 +33,57 @@ class _CommentScreenState extends State<CommentScreen> {
   Future<Map<String, dynamic>?> _fetchUserDetails(
       String id, String collection) async {
     // Check each collection to find the user
-    if (collection == "user") {
-      DocumentSnapshot userDoc =
-          await _firestore.collection("tbl_user").doc(id).get();
-      if (userDoc.exists) {
-        return {
-          'name': userDoc.get('user_name') ?? 'Unknown',
-          'photo': userDoc.get('user_photo') ?? '',
-        };
+    try {
+      if (collection == "user") {
+        DocumentSnapshot userDoc =
+            await _firestore.collection("tbl_user").doc(id).get();
+        if (userDoc.exists) {
+          return {
+            'name': userDoc.get('user_name') ?? 'Unknown',
+            'photo': userDoc.get('user_photo') ?? '',
+          };
+        }
+      } else if (collection == "mvd") {
+        DocumentSnapshot mvdDoc =
+            await _firestore.collection("tbl_mvd").doc(id).get();
+        if (mvdDoc.exists) {
+          return {
+            'name': "MVD:${mvdDoc.get('mvd_name')}",
+            'photo': '',
+          };
+        }
+      } else if (collection == "kseb") {
+        DocumentSnapshot ksebDoc =
+            await _firestore.collection("tbl_kseb").doc(id).get();
+        if (ksebDoc.exists) {
+          return {
+            'name': "KSEB:${ksebDoc.get('kseb_name')}",
+            'photo': '',
+          };
+        }
+      } else if (collection == "pwd") {
+        DocumentSnapshot pwdDoc =
+            await _firestore.collection("tbl_pwd").doc(id).get();
+        if (pwdDoc.exists) {
+          return {
+            'name': "PWD:${pwdDoc.get('pwd_name')}" ?? 'Unknown',
+            'photo': '',
+          };
+        }
+      } else if (collection == "municipality") {
+        DocumentSnapshot municipalityDoc =
+            await _firestore.collection("tbl_municipality").doc(id).get();
+        if (municipalityDoc.exists) {
+          return {
+            'name': "Municipality:${municipalityDoc.get('municipality_name')}",
+            'photo': '',
+          };
+        }
+      } else {
+        return null;
       }
-    } else if (collection == "mvd") {
-      DocumentSnapshot mvdDoc =
-          await _firestore.collection("tbl_mvd").doc(id).get();
-      if (mvdDoc.exists) {
-        return {
-          'name': mvdDoc.get('mvd_name') ?? 'Unknown',
-          'photo': mvdDoc.get('mvd_photo') ?? '',
-        };
-      }
-    } else if (collection == "kseb") {
-      DocumentSnapshot ksebDoc =
-          await _firestore.collection("tbl_kseb").doc(id).get();
-      if (ksebDoc.exists) {
-        return {
-          'name': ksebDoc.get('kseb_name') ?? 'Unknown',
-          'photo': ksebDoc.get('kseb_photo') ?? '',
-        };
-      }
-    } else if (collection == "pwd") {
-      DocumentSnapshot pwdDoc =
-          await _firestore.collection("tbl_pwd").doc(id).get();
-      if (pwdDoc.exists) {
-        return {
-          'name': pwdDoc.get('pwd_name') ?? 'Unknown',
-          'photo': pwdDoc.get('pwd_photo') ?? '',
-        };
-      }
-    } else if (collection == "municipality") {
-      DocumentSnapshot municipalityDoc =
-          await _firestore.collection("tbl_municipality").doc(id).get();
-      if (municipalityDoc.exists) {
-        return {
-          'name': municipalityDoc.get('municipality_name') ?? 'Unknown',
-          'photo': municipalityDoc.get('municipality_photo') ?? '',
-        };
-      }
-    } else {
+    } catch (e) {
+      print("ERROR FETCHING DETAILS: $e");
       return null;
     }
     return null;
@@ -119,16 +124,16 @@ class _CommentScreenState extends State<CommentScreen> {
                     if (comment['user_id'] != "") {
                       collection = "user";
                       id = comment['user_id'];
-                    } else if (comment['mvd_id']) {
+                    } else if (comment['mvd_id'] != "") {
                       collection = "mvd";
                       id = comment['mvd_id'];
-                    } else if (comment['kseb_id']) {
+                    } else if (comment['kseb_id'] != "") {
                       collection = "kseb";
                       id = comment['kseb_id'];
-                    } else if (comment['pwd_id']) {
+                    } else if (comment['pwd_id'] != "") {
                       collection = "pwd";
                       id = comment['pwd_id'];
-                    } else if (comment['municipality_id']) {
+                    } else if (comment['municipality_id'] != "") {
                       collection = "municipality";
                       id = comment['municipality_id'];
                     }
@@ -148,6 +153,7 @@ class _CommentScreenState extends State<CommentScreen> {
                         }
 
                         var userData = userSnapshot.data!;
+                        print("USER: $userData");
                         String userName = userData['name'];
                         String userPhoto = userData['photo'];
 
