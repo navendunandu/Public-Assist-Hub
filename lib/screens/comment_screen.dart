@@ -48,7 +48,7 @@ class _CommentScreenState extends State<CommentScreen> {
             await _firestore.collection("tbl_mvd").doc(id).get();
         if (mvdDoc.exists) {
           return {
-            'name': "MVD:${mvdDoc.get('mvd_name')}",
+            'name': "${mvdDoc.get('mvd_name')} | MVD",
             'photo': '',
           };
         }
@@ -57,7 +57,7 @@ class _CommentScreenState extends State<CommentScreen> {
             await _firestore.collection("tbl_kseb").doc(id).get();
         if (ksebDoc.exists) {
           return {
-            'name': "KSEB:${ksebDoc.get('kseb_name')}",
+            'name': "${ksebDoc.get('kseb_name')} | KSEB",
             'photo': '',
           };
         }
@@ -66,7 +66,7 @@ class _CommentScreenState extends State<CommentScreen> {
             await _firestore.collection("tbl_pwd").doc(id).get();
         if (pwdDoc.exists) {
           return {
-            'name': "PWD:${pwdDoc.get('pwd_name')}" ?? 'Unknown',
+            'name': "PWD:${pwdDoc.get('pwd_name')} | PWD",
             'photo': '',
           };
         }
@@ -75,7 +75,8 @@ class _CommentScreenState extends State<CommentScreen> {
             await _firestore.collection("tbl_municipality").doc(id).get();
         if (municipalityDoc.exists) {
           return {
-            'name': "Municipality:${municipalityDoc.get('municipality_name')}",
+            'name':
+                "${municipalityDoc.get('municipality_name')} | Municipality",
             'photo': '',
           };
         }
@@ -152,8 +153,7 @@ class _CommentScreenState extends State<CommentScreen> {
                           );
                         }
 
-                        var userData = userSnapshot.data!;
-                        print("USER: $userData");
+                        final userData = userSnapshot.data!;
                         String userName = userData['name'];
                         String userPhoto = userData['photo'];
 
@@ -161,8 +161,21 @@ class _CommentScreenState extends State<CommentScreen> {
                           leading: CircleAvatar(
                             backgroundImage: userPhoto.isNotEmpty
                                 ? NetworkImage(userPhoto)
-                                : AssetImage("assets/dummy-profile.png")
-                                    as ImageProvider,
+                                : null, // No image if userPhoto is empty
+                            backgroundColor: userPhoto.isNotEmpty
+                                ? null
+                                : Colors.grey, // Background color for initials
+                            child: userPhoto.isEmpty
+                                ? Text(
+                                    userName.isNotEmpty
+                                        ? userName[0].toUpperCase()
+                                        : '?',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                : null,
                           ),
                           title: Text(userName),
                           subtitle: Text(commentText),
