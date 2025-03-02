@@ -5,6 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:public_assist_hub/components/colors.dart';
 import 'package:public_assist_hub/screens/comment_screen.dart';
+import 'package:public_assist_hub/screens/create_complaint_screen.dart';
+import 'package:public_assist_hub/screens/create_post_screen.dart';
+import 'package:public_assist_hub/screens/my_complaints_screen.dart';
+import 'package:public_assist_hub/screens/profile_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -75,6 +79,135 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.8),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            // mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Select an Option",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              GridView.count(
+                crossAxisCount: 2, // 2 items per row
+                shrinkWrap: true,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 20,
+                children: [
+                  _buildGridOption("Electricity", Icons.electric_bolt, context),
+                  _buildGridOption(
+                      "Municipality", Icons.location_city, context),
+                  _buildGridOption("Public Work", Icons.build, context),
+                  _buildGridOption(
+                      "Motor Vehicle", Icons.directions_car, context),
+                ],
+              ),
+
+              // View My Complaints Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MyComplaintsScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: MyColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text(
+                    'View My Complaints',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGridOption(String title, IconData icon, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pop(context); // Close bottom sheet
+        if (title == "My Complaints") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MyComplaintsScreen()),
+          );
+        } else {
+          // Map titles to entity types
+          String entityType;
+          switch (title) {
+            case "Electricity":
+              entityType = "KSEB";
+              break;
+            case "Municipality":
+              entityType = "Municipality";
+              break;
+            case "Public Work":
+              entityType = "PWD";
+              break;
+            case "Motor Vehicle":
+              entityType = "MVD";
+              break;
+            default:
+              return; // No action for unknown titles
+          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CreateComplaintScreen(entityType: entityType),
+            ),
+          );
+        }
+      },
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: 40),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -90,80 +223,112 @@ class _HomeScreenState extends State<HomeScreen> {
         shrinkWrap: true,
         children: [
           // Welcome Message
-          SizedBox(
-            height: 20,
-          ),
+          // Welcome Message
+          SizedBox(height: 20),
           Text(
-            "Public Service Hub",
+            "Public Assist Hub",
             style: GoogleFonts.poppins(
               color: MyColors.primary,
-              fontSize: 40,
-              fontWeight: FontWeight.w500,
+              fontSize: 36,
+              fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(
-            height: 10,
-          ),
+          SizedBox(height: 20),
+          // Profile and Report Section
           Container(
             decoration: BoxDecoration(
-                color: MyColors.primary,
-                borderRadius: BorderRadius.circular(10)),
-            margin: const EdgeInsets.all(16.0),
-            padding: EdgeInsets.all(10),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: CircleAvatar(
-                    radius: 38,
-                    backgroundImage: imageUrl == null
-                        ? AssetImage("assets/dummy-profile.png")
-                        : NetworkImage(imageUrl!),
-                  ),
+              color: MyColors.primary.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
                 ),
+              ],
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // User Info (Left Side)
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        "Hello,",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white54,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      SizedBox(height: 4),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            "Hello,",
-                            style: GoogleFonts.poppins(
-                                color: Colors.white, fontSize: 28),
+                          Expanded(
+                            child: Text(
+                              userName,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 26,
+                                fontWeight: FontWeight.w600,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          TextButton.icon(
-                            style: TextButton.styleFrom(
-                                side: BorderSide(color: Colors.white)),
-                            onPressed: () {},
-                            label: Text(
-                              "Report an Issue",
-                              style: GoogleFonts.poppins(color: Colors.white),
-                            ),
-                            icon: Icon(
-                              Icons.report_gmailerrorred,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          )
                         ],
                       ),
-                      Text(
-                        userName,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold),
+                    ],
+                  ),
+                ),
+
+                // Profile Picture (Right Side)
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
                       ),
                     ],
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ProfileScreen()),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 32,
+                      backgroundColor: Colors.white.withOpacity(0.1),
+                      backgroundImage: imageUrl == null
+                          ? AssetImage("assets/dummy-profile.png")
+                          : NetworkImage(imageUrl!),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          Divider(),
+          Divider(
+            height: 40,
+            thickness: 1,
+            color: Colors.grey[300],
+          ),
           // Posts List
           StreamBuilder<QuerySnapshot>(
             stream: _firestore
@@ -189,7 +354,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   var post = snapshot.data!.docs[index];
                   var postCaption = post['post_caption'];
-                  var postDate = post['post_date'].toDate();
+                  // Handle null post_date gracefully
+                  var postDateRaw = post['post_date'];
+                  var postDate = postDateRaw != null
+                      ? postDateRaw.toDate()
+                      : DateTime.now(); // Fallback to current time if null
                   var postDescription = post['post_description'];
                   var postPhoto = post['post_photo'];
                   var userId = post['user_id'];
@@ -374,14 +543,33 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(
-          Icons.add_a_photo_outlined,
-          color: Colors.white,
-        ),
-        tooltip: "Add new Post",
-        backgroundColor: MyColors.primary,
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Report Issue FAB
+          FloatingActionButton(
+            heroTag: 'report_fab', // Required when using multiple FABs
+            onPressed: () => _showBottomSheet(context),
+            backgroundColor: Colors.redAccent, // Use urgent color for reporting
+            tooltip: "Report Issue",
+            child: Icon(Icons.warning_amber_rounded, color: Colors.white),
+          ),
+          SizedBox(height: 16), // Space between buttons
+          // Original Photo FAB
+          FloatingActionButton(
+            heroTag: 'photo_fab',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CreatePostScreen()),
+              );
+            }, // Add your camera logic here
+            backgroundColor: MyColors.primary,
+            tooltip: "Add New Post",
+            child: Icon(Icons.add_a_photo_outlined, color: Colors.white),
+          ),
+        ],
       ),
     );
   }

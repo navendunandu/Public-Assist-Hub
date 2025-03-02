@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:public_assist_hub/components/form_validation.dart';
 import 'package:public_assist_hub/components/loader_screen.dart';
 import 'package:public_assist_hub/screens/homescreen.dart';
-import 'package:public_assist_hub/screens/reset_password.dart';
 import 'package:public_assist_hub/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,81 +18,110 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-
   bool _obscureText = true;
 
   final TextEditingController _emailEditingController = TextEditingController();
-  final TextEditingController _passwordEditingController =
-      TextEditingController();
+  final TextEditingController _passwordEditingController = TextEditingController();
+
   Future<void> signIn() async {
+    if (!_formKey.currentState!.validate()) return;
+
     Loader.showLoader(context);
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-              email: _emailEditingController.text,
-              password: _passwordEditingController.text);
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailEditingController.text,
+        password: _passwordEditingController.text,
+      );
       String uid = userCredential.user!.uid;
 
-      // Check if the UID exists in the `tbl_user` collection
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('tbl_user')
-          .doc(uid)
-          .get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('tbl_user').doc(uid).get();
 
       if (userDoc.exists) {
-        // Navigate to home if document exists
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomeScreen(),
-            ));
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
       } else {
-        // Print invalid credentials if no document exists
-        CherryToast.error(
-                description: Text("No user found for that email.",
-                    style: TextStyle(color: Colors.black)),
-                animationType: AnimationType.fromRight,
-                animationDuration: Duration(milliseconds: 1000),
-                autoDismiss: true)
-            .show(context);
-        print('No user found for that email.');
+        Loader.hideLoader(context);
+        _showErrorToast("No user found for that email.");
       }
     } on FirebaseAuthException catch (e) {
       Loader.hideLoader(context);
       if (e.code == 'user-not-found') {
-        CherryToast.error(
-                description: Text("No user found for that email.",
-                    style: TextStyle(color: Colors.black)),
-                animationType: AnimationType.fromRight,
-                animationDuration: Duration(milliseconds: 1000),
-                autoDismiss: true)
-            .show(context);
-        print('No user found for that email.');
+        _showErrorToast("No user found for that email.");
       } else if (e.code == 'wrong-password') {
-        CherryToast.error(
-                description: Text("Wrong password provided for that user.",
-                    style: TextStyle(color: Colors.black)),
-                animationType: AnimationType.fromRight,
-                animationDuration: Duration(milliseconds: 1000),
-                autoDismiss: true)
-            .show(context);
-        print('Wrong password provided for that user.');
+        _showErrorToast("Wrong password provided for that user.");
       } else {
-        CherryToast.error(
-                description: Text("Something went wrong! Please try again.",
-                    style: TextStyle(color: Colors.black)),
-                animationType: AnimationType.fromRight,
-                animationDuration: Duration(milliseconds: 1000),
-                autoDismiss: true)
-            .show(context);
+        _showErrorToast("Something went wrong! Please try again.");
       }
     }
+  }
+
+  void _showForgotPasswordDialog() {
+    final TextEditingController emailController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Forgot Password', style: GoogleFonts.poppins()),
+        content: TextFormField(
+          controller: emailController,
+          validator: FormValidation.validateEmail,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.email, color: Color(0xFF33A4BB)),
+            hintText: 'Enter Email',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF33A4BB)),
+            ),
+          ),
+          keyboardType: TextInputType.emailAddress,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: GoogleFonts.poppins(color: Colors.red)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (FormValidation.validateEmail(emailController.text) != null) {
+                _showErrorToast("Please enter a valid email");
+                return;
+              }
+              try {
+                await FirebaseAuth.instance.sendPasswordResetEmail(email: emailController.text);
+                _showSuccessToast("Password reset email sent. Check your inbox.");
+                Navigator.pop(context);
+              } catch (e) {
+                _showErrorToast("Failed to send reset email: $e");
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF33A4BB)),
+            child: Text('Send', style: GoogleFonts.poppins(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSuccessToast(String message) {
+    CherryToast.success(
+      title: Text(message, style: const TextStyle(color: Colors.black)),
+    ).show(context);
+  }
+
+  void _showErrorToast(String message) {
+    CherryToast.error(
+      description: Text(message, style: const TextStyle(color: Colors.black)),
+      animationType: AnimationType.fromRight,
+      animationDuration: const Duration(milliseconds: 1000),
+      autoDismiss: true,
+    ).show(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFAFAFA),
+      backgroundColor: const Color(0xFFFAFAFA),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -102,7 +130,6 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 30),
-                // Welcome Text
                 Text(
                   "Welcome",
                   style: GoogleFonts.poppins(
@@ -129,118 +156,80 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 50),
-                // Form Fields
                 Form(
                   key: _formKey,
                   child: Column(
                     children: [
                       TextFormField(
-                        validator: (value) =>
-                            FormValidation.validateEmail(value),
+                        validator: (value) => FormValidation.validateEmail(value),
                         controller: _emailEditingController,
                         decoration: InputDecoration(
-                          prefixIcon: const Icon(
-                            Icons.person,
-                            color: Color(0xFF33A4BB), // Default icon color
-                          ),
+                          prefixIcon: const Icon(Icons.person, color: Color(0xFF33A4BB)),
                           hintText: 'Enter E-mail',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 72, 72, 72),
-                            ),
+                            borderSide: const BorderSide(color: Color.fromARGB(255, 72, 72, 72)),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Color(0xFF33A4BB), // Color when focused
-                            ),
+                          focusedBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFF33A4BB)),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Colors.red, // Red border for errors
-                            ),
+                            borderSide: const BorderSide(color: Colors.red),
                           ),
                           focusedErrorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Colors
-                                  .red, // Red border when focused on error
-                            ),
+                            borderSide: const BorderSide(color: Colors.red),
                           ),
                         ),
                         keyboardType: TextInputType.emailAddress,
-                        cursorColor: Color(0xFF33A4BB), // Cursor color
+                        cursorColor: const Color(0xFF33A4BB),
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
-                        validator: (value) =>
-                            FormValidation.validatePassword(value),
+                        validator: (value) => FormValidation.validatePassword(value),
                         controller: _passwordEditingController,
                         obscureText: _obscureText,
                         decoration: InputDecoration(
-                          prefixIcon: const Icon(
-                            Icons.key,
-                            color: Color(0xFF33A4BB),
-                          ),
+                          prefixIcon: const Icon(Icons.key, color: Color(0xFF33A4BB)),
                           hintText: 'Enter Password',
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Color.fromARGB(255, 72, 72, 72),
-                            ),
+                            borderSide: const BorderSide(color: Color.fromARGB(255, 72, 72, 72)),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Color(0xFF33A4BB), // Color when focused
-                            ),
+                          focusedBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFF33A4BB)),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Colors.red, // Red border for errors
-                            ),
+                            borderSide: const BorderSide(color: Colors.red),
                           ),
                           focusedErrorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: Colors
-                                  .red, // Red border when focused on error
-                            ),
+                            borderSide: const BorderSide(color: Colors.red),
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscureText
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
+                              _obscureText ? Icons.visibility_off : Icons.visibility,
                               color: const Color.fromARGB(255, 116, 116, 116),
                             ),
                             onPressed: () {
-                              setState(() {
-                                _obscureText = !_obscureText;
-                              });
+                              setState(() => _obscureText = !_obscureText);
                             },
                           ),
                         ),
                         keyboardType: TextInputType.visiblePassword,
-                        cursorColor: Color(0xFF33A4BB),
+                        cursorColor: const Color(0xFF33A4BB),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton(
-                            child: Text(
-                              "Forget Password?",
+                            child: const Text(
+                              "Forgot Password?",
                               style: TextStyle(color: Color(0xFF33A4BB)),
                             ),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ForgetPasswordScreen(),
-                                  ));
-                            },
+                            onPressed: _showForgotPasswordDialog,
                           ),
                         ],
                       ),
@@ -248,55 +237,45 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  signIn();
-                                }
-                              },
+                              onPressed: signIn,
                               style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFF33A4BB),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 12)),
+                                backgroundColor: const Color(0xFF33A4BB),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
                               child: const Text(
                                 "Sign in",
                                 style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w400),
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w400,
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
+                      const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Flexible(
-                              child: Text("Don't have an account? ",
-                                  style: TextStyle(color: Colors.black))),
+                            child: Text("Don't have an account? ", style: TextStyle(color: Colors.black)),
+                          ),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => RegistrationScreen(),
-                                  ));
+                                context,
+                                MaterialPageRoute(builder: (context) => const RegistrationScreen()),
+                              );
                             },
                             child: const Text(
                               'Create a new account',
-                              style: TextStyle(
-                                color: Color(0xFF33A4BB),
-                              ),
+                              style: TextStyle(color: Color(0xFF33A4BB)),
                             ),
-                          )
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
