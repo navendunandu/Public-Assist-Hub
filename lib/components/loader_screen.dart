@@ -6,8 +6,7 @@ class Loader {
     showDialog(
       barrierColor: Color(0xFF33A4BB),
       context: context,
-      barrierDismissible:
-          false, // Prevent dismissing the dialog by tapping outside
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Center(
           child: LoadingAnimationWidget.beat(
@@ -20,6 +19,6 @@ class Loader {
   }
 
   static void hideLoader(BuildContext context) {
-    Navigator.pop(context); // Close the dialog
+    Navigator.pop(context);
   }
 }

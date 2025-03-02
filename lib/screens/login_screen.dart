@@ -225,11 +225,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton(
+                            onPressed: _showForgotPasswordDialog,
                             child: const Text(
                               "Forgot Password?",
                               style: TextStyle(color: Color(0xFF33A4BB)),
                             ),
-                            onPressed: _showForgotPasswordDialog,
                           ),
                         ],
                       ),

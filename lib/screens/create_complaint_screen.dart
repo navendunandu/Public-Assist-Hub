@@ -10,7 +10,7 @@ import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 
 class CreateComplaintScreen extends StatefulWidget {
-  final String entityType; // "Municipality", "PWD", "KSEB", "MVD"
+  final String entityType;
 
   const CreateComplaintScreen({super.key, required this.entityType});
 
@@ -23,22 +23,19 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String uid = FirebaseAuth.instance.currentUser!.uid;
 
-  // Controllers and variables
   final TextEditingController _titleController = TextEditingController();
   File? _image;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
 
-  // Dropdown selections
   String? _selectedDistrict;
-  String? _selectedPlace; // Only for KSEB
-  String? _selectedLocalPlace; // Only for KSEB
+  String? _selectedPlace;
+  String? _selectedLocalPlace;
   String? _selectedEntityId;
 
-  // Lists for dropdown options
   List<Map<String, dynamic>> districts = [];
-  List<Map<String, dynamic>> places = []; // Only for KSEB
-  List<Map<String, dynamic>> localPlaces = []; // Only for KSEB
+  List<Map<String, dynamic>> places = [];
+  List<Map<String, dynamic>> localPlaces = [];
   List<Map<String, dynamic>> entities = [];
 
   @override
@@ -49,12 +46,15 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
 
   Future<void> _fetchDistricts() async {
     try {
-      QuerySnapshot snapshot = await _firestore.collection('tbl_district').get();
+      QuerySnapshot snapshot =
+          await _firestore.collection('tbl_district').get();
       setState(() {
-        districts = snapshot.docs.map((doc) => {
-          'id': doc.id,
-          'district_name': doc['district_name'],
-        }).toList();
+        districts = snapshot.docs
+            .map((doc) => {
+                  'id': doc.id,
+                  'district_name': doc['district_name'],
+                })
+            .toList();
       });
     } catch (e) {
       _showErrorToast("Error fetching districts: $e");
@@ -68,10 +68,12 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
           .where('district_id', isEqualTo: districtId)
           .get();
       setState(() {
-        places = snapshot.docs.map((doc) => {
-          'id': doc.id,
-          'place_name': doc['place_name'],
-        }).toList();
+        places = snapshot.docs
+            .map((doc) => {
+                  'id': doc.id,
+                  'place_name': doc['place_name'],
+                })
+            .toList();
         _selectedPlace = null;
         _selectedLocalPlace = null;
         _selectedEntityId = null;
@@ -89,10 +91,12 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
           .where('place_id', isEqualTo: placeId)
           .get();
       setState(() {
-        localPlaces = snapshot.docs.map((doc) => {
-          'id': doc.id,
-          'localplace_name': doc['localplace_name'],
-        }).toList();
+        localPlaces = snapshot.docs
+            .map((doc) => {
+                  'id': doc.id,
+                  'localplace_name': doc['localplace_name'],
+                })
+            .toList();
         _selectedLocalPlace = null;
         _selectedEntityId = null;
         entities.clear();
@@ -140,10 +144,12 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
             .get();
       }
       setState(() {
-        entities = snapshot.docs.map((doc) => {
-          'id': doc.id,
-          'name': doc[nameField],
-        }).toList();
+        entities = snapshot.docs
+            .map((doc) => {
+                  'id': doc.id,
+                  'name': doc[nameField],
+                })
+            .toList();
         _selectedEntityId = null;
       });
     } catch (e) {
@@ -173,8 +179,11 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
   }
 
   Future<void> _submitComplaint() async {
-    if (!_formKey.currentState!.validate() || _selectedEntityId == null || _image == null) {
-      _showErrorToast('Please select an entity, add a title, and upload an image');
+    if (!_formKey.currentState!.validate() ||
+        _selectedEntityId == null ||
+        _image == null) {
+      _showErrorToast(
+          'Please select an entity, add a title, and upload an image');
       return;
     }
 
@@ -186,10 +195,11 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
         'complaint_title': _titleController.text,
         'complaint_photo': imageUrl ?? '',
         'complaint_date': FieldValue.serverTimestamp(),
-        'complaint_status': 0, // Pending
+        'complaint_status': 0,
         'complaint_reply': '',
         'user_id': uid,
-        'municipality_id': widget.entityType == 'Municipality' ? _selectedEntityId : '',
+        'municipality_id':
+            widget.entityType == 'Municipality' ? _selectedEntityId : '',
         'pwd_id': widget.entityType == 'PWD' ? _selectedEntityId : '',
         'kseb_id': widget.entityType == 'KSEB' ? _selectedEntityId : '',
         'mvd_id': widget.entityType == 'MVD' ? _selectedEntityId : '',
@@ -207,7 +217,9 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
   }
 
   void _showSuccessToast(String message) {
-    CherryToast.success(title: Text(message, style: const TextStyle(color: Colors.black))).show(context);
+    CherryToast.success(
+            title: Text(message, style: const TextStyle(color: Colors.black)))
+        .show(context);
   }
 
   void _showErrorToast(String message) {
@@ -237,7 +249,6 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // District Dropdown
                     DropdownButtonFormField<String>(
                       value: _selectedDistrict,
                       onChanged: (value) {
@@ -250,18 +261,18 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                           }
                         });
                       },
-                      decoration: _inputDecoration('Select District', Icons.location_on),
+                      decoration: _inputDecoration(
+                          'Select District', Icons.location_on),
                       items: districts.map((district) {
                         return DropdownMenuItem<String>(
                           value: district['id'],
                           child: Text(district['district_name']),
                         );
                       }).toList(),
-                      validator: (value) => value == null ? 'Please select a district' : null,
+                      validator: (value) =>
+                          value == null ? 'Please select a district' : null,
                     ),
                     const SizedBox(height: 20),
-
-                    // Place Dropdown (KSEB only)
                     if (widget.entityType == 'KSEB') ...[
                       DropdownButtonFormField<String>(
                         value: _selectedPlace,
@@ -271,18 +282,18 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                             _fetchLocalPlaces(value!);
                           });
                         },
-                        decoration: _inputDecoration('Select Place', Icons.location_city),
+                        decoration: _inputDecoration(
+                            'Select Place', Icons.location_city),
                         items: places.map((place) {
                           return DropdownMenuItem<String>(
                             value: place['id'],
                             child: Text(place['place_name']),
                           );
                         }).toList(),
-                        validator: (value) => value == null ? 'Please select a place' : null,
+                        validator: (value) =>
+                            value == null ? 'Please select a place' : null,
                       ),
                       const SizedBox(height: 20),
-
-                      // Local Place Dropdown (KSEB only)
                       DropdownButtonFormField<String>(
                         value: _selectedLocalPlace,
                         onChanged: (value) {
@@ -291,34 +302,37 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                             _fetchEntities();
                           });
                         },
-                        decoration: _inputDecoration('Select Local Place', Icons.place),
+                        decoration:
+                            _inputDecoration('Select Local Place', Icons.place),
                         items: localPlaces.map((localPlace) {
                           return DropdownMenuItem<String>(
                             value: localPlace['id'],
                             child: Text(localPlace['localplace_name']),
                           );
                         }).toList(),
-                        validator: (value) => value == null ? 'Please select a local place' : null,
+                        validator: (value) => value == null
+                            ? 'Please select a local place'
+                            : null,
                       ),
                       const SizedBox(height: 20),
                     ],
-
-                    // Entity Dropdown
                     DropdownButtonFormField<String>(
                       value: _selectedEntityId,
-                      onChanged: (value) => setState(() => _selectedEntityId = value),
-                      decoration: _inputDecoration('Select ${widget.entityType}', Icons.domain),
+                      onChanged: (value) =>
+                          setState(() => _selectedEntityId = value),
+                      decoration: _inputDecoration(
+                          'Select ${widget.entityType}', Icons.domain),
                       items: entities.map((entity) {
                         return DropdownMenuItem<String>(
                           value: entity['id'],
                           child: Text(entity['name']),
                         );
                       }).toList(),
-                      validator: (value) => value == null ? 'Please select a ${widget.entityType}' : null,
+                      validator: (value) => value == null
+                          ? 'Please select a ${widget.entityType}'
+                          : null,
                     ),
                     const SizedBox(height: 20),
-
-                    // Image Picker
                     GestureDetector(
                       onTap: _pickImage,
                       child: Container(
@@ -333,10 +347,12 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.add_a_photo, size: 50, color: Colors.grey[600]),
+                                  Icon(Icons.add_a_photo,
+                                      size: 50, color: Colors.grey[600]),
                                   const SizedBox(height: 10),
                                   Text('Tap to add an image',
-                                      style: GoogleFonts.poppins(color: Colors.grey[600])),
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.grey[600])),
                                 ],
                               )
                             : ClipRRect(
@@ -346,16 +362,14 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Complaint Title
                     TextFormField(
                       controller: _titleController,
-                      decoration: _inputDecoration('Complaint Title', Icons.title),
-                      validator: (value) => value!.isEmpty ? 'Please enter a title' : null,
+                      decoration:
+                          _inputDecoration('Complaint Title', Icons.title),
+                      validator: (value) =>
+                          value!.isEmpty ? 'Please enter a title' : null,
                     ),
                     const SizedBox(height: 20),
-
-                    // Submit Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -363,7 +377,8 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: MyColors.primary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: Text(
                           'Submit Complaint',

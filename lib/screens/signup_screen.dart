@@ -1,6 +1,5 @@
-// ignore_for_file: avoid_print
-
 import 'package:cherry_toast/resources/arrays.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:public_assist_hub/components/form_validation.dart';
@@ -79,25 +78,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       final QuerySnapshot<Map<String, dynamic>> querySnapshot =
           await firebase.collection("tbl_district").get();
 
-      // Extract district data into a list of maps
       if (querySnapshot.docs.isNotEmpty) {
         List<Map<String, dynamic>> response = querySnapshot.docs
             .map((doc) => {
-                  'id': doc.id, // Document ID
-                  'district_name':
-                      doc['district_name'], // Field in the document
+                  'id': doc.id,
+                  'district_name': doc['district_name'],
                 })
             .toList();
 
-        // Update the state with the fetched districts
         setState(() {
           districts = response;
         });
       } else {
-        print("District Data is Empty");
+        if (kDebugMode) {
+          print("District Data is Empty");
+        }
       }
     } catch (e) {
-      print("Error fetching districts: $e");
+      if (kDebugMode) {
+        print("Error fetching districts: $e");
+      }
       CherryToast.error(
               description: Text("Something went wrong! Please try again.",
                   style: TextStyle(color: Colors.black)),
@@ -116,24 +116,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           .where('district_id', isEqualTo: id)
           .get();
 
-      // Extract place data into a list of maps
       if (querySnapshot.docs.isNotEmpty) {
         List<Map<String, dynamic>> response = querySnapshot.docs
             .map((doc) => {
-                  'id': doc.id, // Document ID
-                  'place_name': doc['place_name'], // Field in the document
+                  'id': doc.id,
+                  'place_name': doc['place_name'],
                 })
             .toList();
-        print("Place: $response");
-        // Update the state with the fetched places
+
         setState(() {
           places = response;
         });
       } else {
-        print("Place data is empty");
+        if (kDebugMode) {
+          print("Place data is empty");
+        }
       }
     } catch (e) {
-      print("Error fetching places: $e");
+      if (kDebugMode) {
+        print("Error fetching places: $e");
+      }
       CherryToast.error(
               description: Text("Something went wrong! Please try again.",
                   style: TextStyle(color: Colors.black)),
@@ -152,25 +154,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           .where('district_id', isEqualTo: id)
           .get();
 
-      // Extract municipality data into a list of maps
       if (querySnapshot.docs.isNotEmpty) {
         List<Map<String, dynamic>> response = querySnapshot.docs
             .map((doc) => {
-                  'id': doc.id, // Document ID
-                  'municipality_name':
-                      doc['municipality_name'], // Field in the document
+                  'id': doc.id,
+                  'municipality_name': doc['municipality_name'],
                 })
             .toList();
 
-        // Update the state with the fetched municipalitys
         setState(() {
           municipalities = response;
         });
       } else {
-        print("Municipality Data is empty");
+        if (kDebugMode) {
+          print("Municipality Data is empty");
+        }
       }
     } catch (e) {
-      print("Error fetching places: $e");
+      if (kDebugMode) {
+        print("Error fetching places: $e");
+      }
       CherryToast.error(
               description: Text("Something went wrong! Please try again.",
                   style: TextStyle(color: Colors.black)),
@@ -191,20 +194,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       if (querySnapshot.docs.isNotEmpty) {
         List<Map<String, dynamic>> response = querySnapshot.docs
             .map((doc) => {
-                  'id': doc.id, // Document ID
-                  'localplace_name':
-                      doc['localplace_name'], // Field in the document
+                  'id': doc.id,
+                  'localplace_name': doc['localplace_name'],
                 })
             .toList();
-        // Update the state with the fetched places
+
         setState(() {
           localPlaces = response;
         });
       } else {
-        print("Localplace Data is empty");
+        if (kDebugMode) {
+          print("Localplace Data is empty");
+        }
       }
     } catch (e) {
-      print("Error fetching places: $e");
+      if (kDebugMode) {
+        print("Error fetching places: $e");
+      }
       CherryToast.error(
               description: Text("Something went wrong! Please try again.",
                   style: TextStyle(color: Colors.black)),
@@ -227,7 +233,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         await storeData(credential.user!.uid);
       } else {
         Loader.hideLoader(context);
-        print("Error User Authentication");
+        if (kDebugMode) {
+          print("Error User Authentication");
+        }
         CherryToast.error(
                 description: Text("Something went wrong! Please try again.",
                     style: TextStyle(color: Colors.black)),
@@ -246,7 +254,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 animationDuration: Duration(milliseconds: 1000),
                 autoDismiss: true)
             .show(context);
-        print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
         CherryToast.error(
                 description: Text("The account already exists for that email.",
@@ -255,11 +262,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 animationDuration: Duration(milliseconds: 1000),
                 autoDismiss: true)
             .show(context);
-        print('The account already exists for that email.');
       }
     } catch (e) {
       Loader.hideLoader(context);
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       CherryToast.error(
               description: Text("Something went wrong! Please try again.",
                   style: TextStyle(color: Colors.black)),
@@ -286,6 +294,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           .collection("tbl_user")
           .doc(uid)
           .set(user)
+          
           .onError((e, _) => print("Error writing document: $e"));
       if (_selectedImage != null) {
         await uploadImage(uid);
@@ -351,7 +360,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 30),
-                // Welcome Text
                 Text(
                   "Create Account",
                   style: GoogleFonts.poppins(
@@ -370,7 +378,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Form Fields
                 Form(
                   key: _formKey,
                   child: Column(
@@ -471,7 +478,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         keyboardType: TextInputType.emailAddress,
                         cursorColor: const Color(0xFF33A4BB),
                       ),
-
                       const SizedBox(height: 20),
                       TextFormField(
                         validator: (value) =>
@@ -553,14 +559,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         items: districts.map((district) {
                           return DropdownMenuItem<String>(
-                            value: district[
-                                'id'], // Use the document ID as the value
-                            child: Text(district[
-                                'district_name']), // Display the district name
+                            value: district['id'],
+                            child: Text(district['district_name']),
                           );
                         }).toList(),
                       ),
-
                       const SizedBox(height: 20),
                       DropdownButtonFormField<String>(
                         validator: (value) =>
@@ -737,7 +740,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         cursorColor: const Color(0xFF33A4BB),
                       ),
                       const SizedBox(height: 30),
-                      // Sign Up Button
                       Row(
                         children: [
                           Expanded(
@@ -775,9 +777,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               child: Text("Already have an account? ",
                                   style: TextStyle(color: Colors.black))),
                           GestureDetector(
-                            onTap: () {
-                              // Navigate to login screen
-                            },
+                            onTap: () {},
                             child: const Text(
                               'Login here',
                               style: TextStyle(

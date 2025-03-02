@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,10 +25,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String uid = FirebaseAuth.instance.currentUser!.uid;
 
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _contactController = TextEditingController();
-  TextEditingController _addressController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _contactController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
 
   XFile? _selectedImage;
   String? _imageUrl;
@@ -71,7 +72,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         await _fetchMunicipalityAndPlace();
       }
     } catch (e) {
-      print("Error fetching user data: $e");
+      if (kDebugMode) {
+        print("Error fetching user data: $e");
+      }
       _showErrorToast("Failed to load profile");
       setState(() => _isLoading = false);
     }
@@ -90,7 +93,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .toList();
       });
     } catch (e) {
-      print("Error fetching districts: $e");
+      if (kDebugMode) {
+        print("Error fetching districts: $e");
+      }
     }
   }
 
@@ -109,7 +114,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .toList();
       });
     } catch (e) {
-      print("Error fetching places: $e");
+      if (kDebugMode) {
+        print("Error fetching places: $e");
+      }
     }
   }
 
@@ -128,7 +135,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .toList();
       });
     } catch (e) {
-      print("Error fetching local places: $e");
+      if (kDebugMode) {
+        print("Error fetching local places: $e");
+      }
     }
   }
 
@@ -147,7 +156,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .toList();
       });
     } catch (e) {
-      print("Error fetching municipalities: $e");
+      if (kDebugMode) {
+        print("Error fetching municipalities: $e");
+      }
     }
   }
 
@@ -208,7 +219,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() => _isEditing = false);
       _showSuccessToast("Profile updated successfully");
     } catch (e) {
-      print("Error updating profile: $e");
+      if (kDebugMode) {
+        print("Error updating profile: $e");
+      }
       _showErrorToast("Failed to update profile: $e");
     } finally {
       setState(() => _isLoading = false);
@@ -224,7 +237,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         (route) => false,
       );
     } catch (e) {
-      print("Error signing out: $e");
+      if (kDebugMode) {
+        print("Error signing out: $e");
+      }
       _showErrorToast("Failed to sign out");
     }
   }

@@ -20,7 +20,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(
-        length: 4, vsync: this); // 4 tabs: Municipality, PWD, KSEB, MVD
+        length: 4, vsync: this); 
   }
 
   @override
@@ -79,7 +79,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
       stream: firestore
           .collection('tbl_complaint')
           .where('user_id', isEqualTo: uid)
-          .where(entityIdField, isNotEqualTo: '') // Filter for non-empty IDs
+          .where(entityIdField, isNotEqualTo: '') 
           .orderBy('complaint_date', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
@@ -122,7 +122,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
                 if (entitySnapshot.hasError ||
                     !entitySnapshot.hasData ||
                     !entitySnapshot.data!.exists) {
-                  return const SizedBox.shrink(); // Skip if entity not found
+                  return const SizedBox.shrink(); 
                 }
 
                 var entityName = entitySnapshot.data![entityNameField];

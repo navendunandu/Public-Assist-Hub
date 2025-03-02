@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -23,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? imageUrl;
   String userName = "";
 
-  Set<String> likedPosts = {}; // Stores post IDs that the user liked
+  Set<String> likedPosts = {};
 
   Future<void> _fetchLikedPosts() async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -48,10 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
         .get();
 
     if (likeSnapshot.docs.isNotEmpty) {
-      // Unlike (remove from Firestore)
       await likesRef.doc(likeSnapshot.docs.first.id).delete();
     } else {
-      // Like (add to Firestore)
       await likesRef.add({
         'user_id': uid,
         'post_id': postId,
@@ -63,7 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchUserName() async {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      print("User: $uid");
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('tbl_user')
           .doc(uid)
@@ -75,7 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print("Error Loading User: $e");
+      if (kDebugMode) {
+        print("Error Loading User: $e");
+      }
     }
   }
 
@@ -91,7 +91,6 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
-            // mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
                 "Select an Option",
@@ -102,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 20),
               GridView.count(
-                crossAxisCount: 2, // 2 items per row
+                crossAxisCount: 2,
                 shrinkWrap: true,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 20,
@@ -115,8 +114,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       "Motor Vehicle", Icons.directions_car, context),
                 ],
               ),
-
-              // View My Complaints Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -153,14 +150,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildGridOption(String title, IconData icon, BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pop(context); // Close bottom sheet
+        Navigator.pop(context);
         if (title == "My Complaints") {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const MyComplaintsScreen()),
           );
         } else {
-          // Map titles to entity types
           String entityType;
           switch (title) {
             case "Electricity":
@@ -176,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
               entityType = "MVD";
               break;
             default:
-              return; // No action for unknown titles
+              return;
           }
           Navigator.push(
             context,
@@ -222,8 +218,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: ListView(
         shrinkWrap: true,
         children: [
-          // Welcome Message
-          // Welcome Message
           SizedBox(height: 20),
           Text(
             "Public Assist Hub",
@@ -235,7 +229,6 @@ class _HomeScreenState extends State<HomeScreen> {
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 20),
-          // Profile and Report Section
           Container(
             decoration: BoxDecoration(
               color: MyColors.primary.withOpacity(0.9),
@@ -253,7 +246,6 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // User Info (Left Side)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,8 +279,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-
-                // Profile Picture (Right Side)
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
@@ -329,7 +319,6 @@ class _HomeScreenState extends State<HomeScreen> {
             thickness: 1,
             color: Colors.grey[300],
           ),
-          // Posts List
           StreamBuilder<QuerySnapshot>(
             stream: _firestore
                 .collection('tbl_post')
@@ -354,11 +343,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   var post = snapshot.data!.docs[index];
                   var postCaption = post['post_caption'];
-                  // Handle null post_date gracefully
+
                   var postDateRaw = post['post_date'];
                   var postDate = postDateRaw != null
                       ? postDateRaw.toDate()
-                      : DateTime.now(); // Fallback to current time if null
+                      : DateTime.now();
                   var postDescription = post['post_description'];
                   var postPhoto = post['post_photo'];
                   var userId = post['user_id'];
@@ -396,10 +385,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
 
                       var userData = userSnapshot.data!;
-                      var userName = userData[
-                          'user_name']; // Assuming 'name' is stored in tbl_user
-                      var userPhoto = userData[
-                          'user_photo']; // Assuming 'photo_url' is stored in tbl_user
+                      var userName = userData['user_name'];
+                      var userPhoto = userData['user_photo'];
 
                       return Container(
                         margin: const EdgeInsets.symmetric(
@@ -407,7 +394,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // User Info
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
@@ -427,7 +413,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-                            // Post Image
                             if (postPhoto.isNotEmpty)
                               Image.network(
                                 postPhoto,
@@ -435,7 +420,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 height: 200,
                                 fit: BoxFit.cover,
                               ),
-                            // Post Caption and Description
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
@@ -477,8 +461,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       : Icons.favorite_outline,
                                                   color: isLiked
                                                       ? Colors.red
-                                                      : Colors
-                                                          .black, // Changes dynamically
+                                                      : Colors.black,
                                                 ),
                                               ),
                                               Text(
@@ -546,16 +529,14 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Report Issue FAB
           FloatingActionButton(
-            heroTag: 'report_fab', // Required when using multiple FABs
+            heroTag: 'report_fab',
             onPressed: () => _showBottomSheet(context),
-            backgroundColor: Colors.redAccent, // Use urgent color for reporting
+            backgroundColor: Colors.redAccent,
             tooltip: "Report Issue",
             child: Icon(Icons.warning_amber_rounded, color: Colors.white),
           ),
-          SizedBox(height: 16), // Space between buttons
-          // Original Photo FAB
+          SizedBox(height: 16),
           FloatingActionButton(
             heroTag: 'photo_fab',
             onPressed: () {
@@ -564,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(
                     builder: (context) => const CreatePostScreen()),
               );
-            }, // Add your camera logic here
+            },
             backgroundColor: MyColors.primary,
             tooltip: "Add New Post",
             child: Icon(Icons.add_a_photo_outlined, color: Colors.white),

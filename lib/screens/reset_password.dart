@@ -1,6 +1,7 @@
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:public_assist_hub/components/form_validation.dart';
@@ -34,7 +35,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
           ));
     } catch (e) {
       Loader.hideLoader(context);
-      print("Error sending reset link: $e");
+      if (kDebugMode) {
+        print("Error sending reset link: $e");
+      }
       CherryToast.error(
               description: Text("Something went wrong! Please try again.",
                   style: TextStyle(color: Colors.black)),
@@ -57,7 +60,6 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 30),
-                // Heading
                 Text(
                   "Forget Password",
                   style: GoogleFonts.poppins(
@@ -75,7 +77,6 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                   ),
                 ),
                 const SizedBox(height: 50),
-                // Form Fields
                 Form(
                   key: _formKey,
                   child: Column(
@@ -98,7 +99,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderSide: const BorderSide(
-                              color: Color(0xFF33A4BB), // Focused color
+                              color: Color(0xFF33A4BB),
                             ),
                           ),
                           errorBorder: OutlineInputBorder(
@@ -118,7 +119,6 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                         cursorColor: const Color(0xFF33A4BB),
                       ),
                       const SizedBox(height: 30),
-                      // Submit Button
                       Row(
                         children: [
                           Expanded(
@@ -149,7 +149,6 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      // Back to Login Link
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

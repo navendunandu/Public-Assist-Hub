@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -19,7 +20,7 @@ class _CommentScreenState extends State<CommentScreen> {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     String commentText = _commentController.text.trim();
 
-    if (commentText.isEmpty) return; // Don't allow empty comments
+    if (commentText.isEmpty) return; 
 
     await _firestore.collection('tbl_comment').add({
       'user_id': uid,
@@ -27,12 +28,12 @@ class _CommentScreenState extends State<CommentScreen> {
       'command_content': commentText,
     });
 
-    _commentController.clear(); // Clear the input field after posting
+    _commentController.clear(); 
   }
 
   Future<Map<String, dynamic>?> _fetchUserDetails(
       String id, String collection) async {
-    // Check each collection to find the user
+    
     try {
       if (collection == "user") {
         DocumentSnapshot userDoc =
@@ -84,7 +85,9 @@ class _CommentScreenState extends State<CommentScreen> {
         return null;
       }
     } catch (e) {
-      print("ERROR FETCHING DETAILS: $e");
+      if (kDebugMode) {
+        print("ERROR FETCHING DETAILS: $e");
+      }
       return null;
     }
     return null;
@@ -161,10 +164,10 @@ class _CommentScreenState extends State<CommentScreen> {
                           leading: CircleAvatar(
                             backgroundImage: userPhoto.isNotEmpty
                                 ? NetworkImage(userPhoto)
-                                : null, // No image if userPhoto is empty
+                                : null, 
                             backgroundColor: userPhoto.isNotEmpty
                                 ? null
-                                : Colors.grey, // Background color for initials
+                                : Colors.grey, 
                             child: userPhoto.isEmpty
                                 ? Text(
                                     userName.isNotEmpty

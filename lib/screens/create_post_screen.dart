@@ -21,7 +21,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final ImagePicker _picker = ImagePicker();
   bool _isUploading = false;
 
-  // Pick an image from gallery or camera
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -31,7 +30,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     }
   }
 
-  // Upload image to Firebase Storage and return the download URL
   Future<String?> _uploadImage() async {
     if (_image == null) return null;
     String fileName = 'post_${DateTime.now().millisecondsSinceEpoch}.jpg';
@@ -43,7 +41,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     return await storageRef.getDownloadURL();
   }
 
-  // Submit the post to Firestore
   Future<void> _submitPost() async {
     if (_captionController.text.isEmpty || _image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -66,7 +63,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         'post_date': FieldValue.serverTimestamp(),
       });
 
-      Navigator.pop(context); // Return to HomeScreen after posting
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Post created successfully!')),
       );
@@ -95,7 +92,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Picker Section
             GestureDetector(
               onTap: _pickImage,
               child: Container(
@@ -126,8 +122,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Caption Field
             Text(
               'Caption',
               style: GoogleFonts.poppins(
@@ -143,8 +137,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Description Field
             Text(
               'Description',
               style: GoogleFonts.poppins(
@@ -161,8 +153,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Submit Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
