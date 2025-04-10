@@ -9,16 +9,16 @@ import 'package:public_assist_hub/components/colors.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 
-class CreateComplaintScreen extends StatefulWidget {
+class CreateRequestScreen extends StatefulWidget {
   final String entityType;
 
-  const CreateComplaintScreen({super.key, required this.entityType});
+  const CreateRequestScreen({super.key, required this.entityType});
 
   @override
-  State<CreateComplaintScreen> createState() => _CreateComplaintScreenState();
+  State<CreateRequestScreen> createState() => _CreateRequestScreenState();
 }
 
-class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
+class _CreateRequestScreenState extends State<CreateRequestScreen> {
   final _formKey = GlobalKey<FormState>();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -193,12 +193,11 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
       String? imageUrl = await _uploadImage();
 
       Map<String, dynamic> complaintData = {
-        'complaint_title': _titleController.text,
-        'complaint_content': _contentController.text,
-        'complaint_photo': imageUrl ?? '',
-        'complaint_date': FieldValue.serverTimestamp(),
-        'complaint_status': 0,
-        'complaint_reply': '',
+        'request_description': _contentController.text,
+        'request_photo': imageUrl ?? '',
+        'request_date': FieldValue.serverTimestamp(),
+        'request_status': 0,
+        'request_reply': '',
         'user_id': uid,
         'municipality_id':
             widget.entityType == 'Municipality' ? _selectedEntityId : '',
@@ -207,12 +206,12 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
         'mvd_id': widget.entityType == 'MVD' ? _selectedEntityId : '',
       };
 
-      await _firestore.collection('tbl_complaint').add(complaintData);
+      await _firestore.collection('tbl_request').add(complaintData);
 
-      _showSuccessToast('Complaint posted successfully');
+      _showSuccessToast('Request posted successfully');
       Navigator.pop(context);
     } catch (e) {
-      _showErrorToast('Error posting complaint: $e');
+      _showErrorToast('Error posting request: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -237,7 +236,7 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Post ${widget.entityType} Complaint',
+        title: Text('Send ${widget.entityType} Request',
             style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         backgroundColor: MyColors.primary,
         foregroundColor: Colors.white,
@@ -365,19 +364,11 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
-                      controller: _titleController,
-                      decoration:
-                          _inputDecoration('Complaint Title', Icons.title),
-                      validator: (value) =>
-                          value!.isEmpty ? 'Please enter a title' : null,
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
                       minLines: 3,
                       maxLines: null,
                       controller: _contentController,
                       decoration:
-                          _inputDecoration('Complaint Content', Icons.content_paste_rounded),
+                          _inputDecoration('Request Content', Icons.title),
                       validator: (value) =>
                           value!.isEmpty ? 'Please enter a content' : null,
                     ),
@@ -393,7 +384,7 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                               borderRadius: BorderRadius.circular(12)),
                         ),
                         child: Text(
-                          'Submit Complaint',
+                          'Submit Request',
                           style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 16,

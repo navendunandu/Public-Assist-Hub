@@ -5,14 +5,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:public_assist_hub/components/colors.dart';
 
-class MyComplaintsScreen extends StatefulWidget {
-  const MyComplaintsScreen({super.key});
+class MyRequestScreen extends StatefulWidget {
+  const MyRequestScreen({super.key});
 
   @override
-  State<MyComplaintsScreen> createState() => _MyComplaintsScreenState();
+  State<MyRequestScreen> createState() => _MyRequestScreenState();
 }
 
-class _MyComplaintsScreenState extends State<MyComplaintsScreen>
+class _MyRequestScreenState extends State<MyRequestScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -36,7 +36,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Complaints',
+        title: Text('My Request',
             style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         backgroundColor: MyColors.primary,
         foregroundColor: Colors.white,
@@ -77,10 +77,10 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
   ) {
     return StreamBuilder<QuerySnapshot>(
       stream: firestore
-          .collection('tbl_complaint')
+          .collection('tbl_request')
           .where('user_id', isEqualTo: uid)
           .where(entityIdField, isNotEqualTo: '') 
-          .orderBy('complaint_date', descending: true)
+          .orderBy('request_date', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -91,7 +91,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(
-              child: Text('No complaints found for this category.'));
+              child: Text('No crequests found for this category.'));
         }
 
         return ListView.separated(
@@ -99,17 +99,16 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
           padding: const EdgeInsets.all(16),
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index) {
-            var complaint = snapshot.data!.docs[index];
-            var complaintTitle = complaint['complaint_title'];
-            var complaintContent = complaint['complaint_content'];
-            var complaintDateRaw = complaint['complaint_date'];
-            var complaintDate = complaintDateRaw != null
-                ? complaintDateRaw.toDate()
+            var request = snapshot.data!.docs[index];
+            var requestContent = request['request_description'];
+            var requestDateRaw = request['request_date'];
+            var requestDate = requestDateRaw != null
+                ? requestDateRaw.toDate()
                 : DateTime.now();
-            var complaintPhoto = complaint['complaint_photo'];
-            var complaintReply = complaint['complaint_reply'];
-            var complaintStatus = complaint['complaint_status'];
-            var entityId = complaint[entityIdField];
+            var requestPhoto = request['request_photo'];
+            var requestReply = request['request_reply'];
+            var requestStatus = request['request_status'];
+            var entityId = request[entityIdField];
 
             return FutureBuilder<DocumentSnapshot>(
               future:
@@ -137,11 +136,11 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (complaintPhoto.isNotEmpty)
+                        if (requestPhoto.isNotEmpty)
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              complaintPhoto,
+                              requestPhoto,
                               width: double.infinity,
                               height: 150,
                               fit: BoxFit.cover,
@@ -149,12 +148,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
                           ),
                         const SizedBox(height: 10),
                         Text(
-                          complaintTitle,
-                          style: GoogleFonts.poppins(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          "Content: $complaintContent",
+                          requestContent,
                           style: GoogleFonts.poppins(
                               fontSize: 16, fontWeight: FontWeight.w300),
                         ),
@@ -165,27 +159,27 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen>
                               fontSize: 14, color: Colors.grey),
                         ),
                         const SizedBox(height: 5),
-                        if (complaintReply.isNotEmpty)
+                        if (requestReply.isNotEmpty)
                           Text(
-                            'Reply: $complaintReply',
+                            'Reply: $requestReply',
                             style: GoogleFonts.poppins(
                                 fontSize: 14, color: Colors.blueGrey),
                           ),
                         const SizedBox(height: 5),
                         Text(
-                          'Status: ${complaintStatus == 0 ? "Pending" : complaintStatus == 1 ? "In Progress" : "Resolved"}',
+                          'Status: ${requestStatus == 0 ? "Pending" : requestStatus == 1 ? "In Progress" : "Resolved"}',
                           style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: complaintStatus == 0
+                              color: requestStatus == 0
                                   ? Colors.red
-                                  : complaintStatus == 1
+                                  : requestStatus == 1
                                       ? Colors.orange
                                       : Colors.green),
                         ),
                         const SizedBox(height: 10),
                         Text(
                           DateFormat('MMMM dd, yyyy - hh:mm a')
-                              .format(complaintDate),
+                              .format(requestDate),
                           style: GoogleFonts.poppins(
                               fontSize: 12, color: Colors.grey),
                         ),
